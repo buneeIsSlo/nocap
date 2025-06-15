@@ -3,7 +3,7 @@ import { Squircle } from "@squircle-js/react";
 
 const HeroSection = () => {
   return (
-    <section className="bg-main-gradient relative flex min-h-screen items-center justify-center overflow-hidden px-4">
+    <section className="bg-main-gradient relative flex min-h-screen items-center justify-center overflow-hidden rounded-b-[6rem] px-4 py-32">
       <div className="pointer-events-none absolute inset-0">
         <div className="animate-float absolute top-20 left-8 text-6xl">👋</div>
         <div className="animate-bounce-gentle absolute top-32 right-12 text-5xl">
@@ -30,7 +30,7 @@ const HeroSection = () => {
       </div>
 
       <div className="z-10 mx-auto max-w-4xl text-center">
-        <h1 className="font-bowlbyOne mb-12 text-5xl leading-32 font-black text-white md:text-8xl lg:text-9xl">
+        <h1 className="mb-12 text-5xl leading-32 font-black text-white md:text-8xl lg:text-9xl">
           No cap
           <br />
           <span className="text-gradient">Spill the tea</span>
