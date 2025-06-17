@@ -1,7 +1,13 @@
+"use client";
+
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Squircle } from "@squircle-js/react";
+import { SignInDialog } from "@/components/auth/sign-in-dialog";
 
 const HeroSection = () => {
+  const [showSignIn, setShowSignIn] = useState(false);
+
   return (
     <section className="bg-main-gradient relative flex min-h-screen items-center justify-center overflow-hidden rounded-b-[6rem] px-4 py-32">
       <div className="pointer-events-none absolute inset-0">
@@ -39,11 +45,14 @@ const HeroSection = () => {
           <Button
             size="lg"
             className="shadow-glow transform bg-black p-10 text-2xl font-bold text-white transition-all duration-300 hover:scale-105 hover:brightness-105"
+            onClick={() => setShowSignIn(true)}
           >
             Start receiving Questions
           </Button>
         </Squircle>
       </div>
+
+      <SignInDialog open={showSignIn} onOpenChange={setShowSignIn} />
     </section>
   );
 };
