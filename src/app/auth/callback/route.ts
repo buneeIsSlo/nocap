@@ -36,6 +36,7 @@ export async function GET(request: Request) {
         id: user.id,
         email: user.email,
         username,
+        avatar: user.user_metadata.avatar_url,
       });
 
       if (insertError) throw insertError;
