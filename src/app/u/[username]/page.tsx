@@ -1,11 +1,20 @@
-import React from "react";
+import ProfileOwnerView from "./profile-owner-view";
+import { createClient } from "@/utils/supabase/server";
+import { Profile } from "@/lib/types";
 
-export default function Page() {
-  return (
-    <main>
-      <h1 className="text-main-gradient w-full p-4 text-center text-[6rem]">
-        Your Profile
-      </h1>
-    </main>
-  );
+interface PageProps {
+  profile: Profile;
+}
+
+export default async function Page({ profile }: PageProps) {
+  const supabase = await createClient();
+  const {
+    data: { user: loggedInUser },
+  } = await supabase.auth.getUser();
+
+  if (loggedInUser && loggedInUser.id === profile.id) {
+    return <ProfileOwnerView profile={profile} />;
+  }
+
+  return null;
 }

@@ -1,0 +1,98 @@
+"use client";
+
+import { useState } from "react";
+import { Profile } from "@/lib/types";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import EditProfileForm from "./edit-profile-form";
+import { Squircle } from "@squircle-js/react";
+import { Edit, LogOut } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { cn } from "@/lib/utils";
+import { useAcceptingMessagesMutation } from "@/hooks/useAcceptingMessagesMutation";
+import toast from "react-hot-toast";
+
+export default function ProfileOwnerView({ profile }: { profile: Profile }) {
+  const [editing, setEditing] = useState(false);
+  const [accepting, setAccepting] = useState(profile.accepting_messages);
+  const mutation = useAcceptingMessagesMutation(profile.id);
+
+  const handleToggle = (val: boolean) => {
+    setAccepting(val);
+
+    mutation.mutate(val, {
+      onError: () => {
+        setAccepting((prev) => !prev);
+        toast.error("Failed to perform this action");
+      },
+    });
+  };
+
+  return !editing ? (
+    <section className="mx-auto max-w-3xl py-16">
+      <Squircle cornerRadius={30} cornerSmoothing={1}>
+        <Card className="flex w-full flex-row justify-between gap-1 p-8">
+          <div className="flex flex-col gap-1">
+            <Avatar className="size-14">
+              <AvatarImage src={profile.avatar!} alt={profile.username!} />
+              <AvatarFallback>
+                {profile.username?.[0]?.toUpperCase() ?? "?"}
+              </AvatarFallback>
+            </Avatar>
+            <h1 className="text-main-gradient text-xl font-semibold">
+              {profile.username}
+            </h1>
+            {profile.description && (
+              <p className="max-w-xl text-center">{profile.description}</p>
+            )}
+            <p className="text-xs text-gray-400">
+              Joined:{" "}
+              {profile.created_at
+                ? new Date(profile.created_at).toLocaleDateString()
+                : "Unknown"}
+            </p>
+            <Button
+              variant={"outline"}
+              className="mt-4 w-fit"
+              onClick={() => setEditing(true)}
+            >
+              <Edit className="size-4" />
+              Edit Profile
+            </Button>
+          </div>
+          <div className="flex flex-col items-end justify-between">
+            <Button
+              variant={"ghost"}
+              className="hover:text-destructive text-muted-foreground w-fit"
+            >
+              <LogOut className="size-4" />
+              <span>Logout</span>
+            </Button>
+            <div className="mt-4 flex items-center gap-2">
+              <label
+                htmlFor="accepting-switch"
+                className={cn(
+                  "flex items-center gap-1 text-base font-medium",
+                  !accepting && "text-destructive font-normal",
+                )}
+              >
+                {accepting && (
+                  <span className="inline-block size-2.5 animate-pulse rounded-full bg-green-700"></span>
+                )}
+                {accepting ? "Accepting messages" : "Not accepting messages"}
+              </label>
+              <Switch
+                checked={accepting}
+                onCheckedChange={handleToggle}
+                id="accepting-switch"
+              />
+            </div>
+          </div>
+        </Card>
+      </Squircle>
+    </section>
+  ) : (
+    <EditProfileForm profile={profile} onClose={() => setEditing(false)} />
+  );
+}
