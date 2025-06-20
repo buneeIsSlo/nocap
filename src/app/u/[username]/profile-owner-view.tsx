@@ -49,9 +49,7 @@ export default function ProfileOwnerView({ profile }: { profile: Profile }) {
             <h1 className="text-main-gradient text-xl font-semibold">
               {profile.username}
             </h1>
-            {profile.bio && (
-              <p className="max-w-xl text-center">{profile.bio}</p>
-            )}
+            {profile.bio && <p className="max-w-xl">{profile.bio}</p>}
             <p className="mb-8 text-xs text-gray-400">
               Joined:{" "}
               {profile.created_at

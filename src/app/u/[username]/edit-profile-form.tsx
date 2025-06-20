@@ -18,10 +18,26 @@ import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Squircle } from "@squircle-js/react";
 import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
 const profileSchema = z.object({
-  username: z.string().min(3).max(32),
-  bio: z.string().max(100).optional(),
+  username: z
+    .string()
+    .min(3)
+    .max(32)
+    .regex(/^[a-zA-Z0-9_-]+$/, {
+      message:
+        "Username can only contain letters, numbers, underscores, and hyphens.",
+    })
+    .transform((val) => val.trim()),
+  bio: z
+    .string()
+    .max(100)
+    .optional()
+    .transform((val) => val?.trim()),
   avatar: z.any().optional(),
 });
 
@@ -43,9 +59,43 @@ export default function EditProfileForm({
       avatar: undefined,
     },
   });
+  const router = useRouter();
+
+  const mutation = useMutation({
+    mutationFn: async (data: ProfileForm) => {
+      const response = await fetch("/api/profile/update", {
+        method: "PUT",
+        headers: { "Content-type": "application/json" },
+        body: JSON.stringify({
+          id: profile.id,
+          username: data.username,
+          bio: data.bio,
+        }),
+      });
+
+      const json = await response.json();
+      if (!response.ok) throw json;
+      return json;
+    },
+    onSuccess: (_data, variables) => {
+      toast.success("Profile updated!");
+      if (variables.username !== profile.username) {
+        router.replace(`/u/${variables.username}`);
+        router.refresh();
+      }
+      onClose();
+    },
+    onError: (err: any) => {
+      if (err?.error?.toLowerCase().includes("username")) {
+        form.setError("username", { message: err.error });
+      } else {
+        toast.error(err?.error || "Failed to update user profile");
+      }
+    },
+  });
 
   const onSubmit = (data: ProfileForm) => {
-    onClose();
+    mutation.mutate(data);
   };
 
   return (
@@ -117,10 +167,28 @@ export default function EditProfileForm({
                 )}
               />
               <div className="mt-4 flex gap-2">
-                <Button type="submit">Save</Button>
-                <Button type="button" variant="secondary" onClick={onClose}>
-                  Cancel
-                </Button>
+                <Squircle cornerRadius={10} cornerSmoothing={1} asChild>
+                  <Button
+                    type="submit"
+                    disabled={mutation.isPending}
+                    className="min-w-28"
+                  >
+                    {mutation.isPending ? (
+                      <Loader2 className="size-4 animate-spin" />
+                    ) : null}
+                    {mutation.isPending ? "Saving" : "Save"}
+                  </Button>
+                </Squircle>
+                <Squircle cornerRadius={10} cornerSmoothing={1} asChild>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={onClose}
+                    className="min-w-28"
+                  >
+                    Cancel
+                  </Button>
+                </Squircle>
               </div>
             </form>
           </Form>
