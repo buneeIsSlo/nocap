@@ -7,11 +7,17 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import EditProfileForm from "./edit-profile-form";
 import { Squircle } from "@squircle-js/react";
-import { Edit, LogOut } from "lucide-react";
+import { Edit, Link, LogOut } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { useAcceptingMessagesMutation } from "@/hooks/useAcceptingMessagesMutation";
 import toast from "react-hot-toast";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
+import LogoutDialog from "./logout-dialog";
 
 export default function ProfileOwnerView({ profile }: { profile: Profile }) {
   const [editing, setEditing] = useState(false);
@@ -46,29 +52,42 @@ export default function ProfileOwnerView({ profile }: { profile: Profile }) {
             {profile.description && (
               <p className="max-w-xl text-center">{profile.description}</p>
             )}
-            <p className="text-xs text-gray-400">
+            <p className="mb-8 text-xs text-gray-400">
               Joined:{" "}
               {profile.created_at
                 ? new Date(profile.created_at).toLocaleDateString()
                 : "Unknown"}
             </p>
-            <Button
-              variant={"outline"}
-              className="mt-4 w-fit"
-              onClick={() => setEditing(true)}
-            >
-              <Edit className="size-4" />
-              Edit Profile
-            </Button>
+            <Squircle cornerRadius={10} cornerSmoothing={1} asChild>
+              <Button
+                className="w-fit"
+                onClick={() => {
+                  navigator.clipboard.writeText(window.location.href);
+                  toast.success("Profile link copied!");
+                }}
+              >
+                <Link className="size-4" />
+                Copy Profile Link
+              </Button>
+            </Squircle>
           </div>
           <div className="flex flex-col items-end justify-between">
-            <Button
-              variant={"ghost"}
-              className="hover:text-destructive text-muted-foreground w-fit"
-            >
-              <LogOut className="size-4" />
-              <span>Logout</span>
-            </Button>
+            <div className="flex gap-2">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="rounded-full"
+                    onClick={() => setEditing(true)}
+                  >
+                    <Edit className="size-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Edit Profile</TooltipContent>
+              </Tooltip>
+              <LogoutDialog />
+            </div>
             <div className="mt-4 flex items-center gap-2">
               <label
                 htmlFor="accepting-switch"
