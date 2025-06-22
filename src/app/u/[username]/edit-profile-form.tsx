@@ -18,10 +18,12 @@ import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Squircle } from "@squircle-js/react";
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import useDebouncedValue from "@/hooks/useDebounceValue";
+import UsernameStatus from "@/components/username-status";
 
 const profileSchema = z.object({
   username: z
@@ -51,6 +53,10 @@ export default function EditProfileForm({
   onClose: () => void;
 }) {
   const [avatarUrl, setAvatarUrl] = useState(profile.avatar || "");
+  const [usernameToCheck, setUsernameToCheck] = useState(
+    profile.username || "",
+  );
+  const debouncedUsername = useDebouncedValue(usernameToCheck, 500);
   const form = useForm<ProfileForm>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
@@ -60,6 +66,29 @@ export default function EditProfileForm({
     },
   });
   const router = useRouter();
+
+  const {
+    data: usernameCheck,
+    isFetching: usernameChecking,
+    isSuccess: usernameCheckSuccess,
+    isError: usernameCheckError,
+  } = useQuery({
+    queryKey: ["check-username", debouncedUsername],
+    queryFn: async () => {
+      if (!debouncedUsername || debouncedUsername === profile.username) {
+        return { isAvailable: true };
+      }
+      const res = await fetch(
+        `/api/profile/check-username?username=${encodeURIComponent(debouncedUsername)}`,
+      );
+      return res.json();
+    },
+    enabled:
+      !!debouncedUsername &&
+      debouncedUsername !== profile.username &&
+      debouncedUsername.length > 2,
+    staleTime: 1000,
+  });
 
   const mutation = useMutation({
     mutationFn: async (data: ProfileForm) => {
@@ -147,8 +176,36 @@ export default function EditProfileForm({
                   <FormItem className="w-full">
                     <FormLabel>Username</FormLabel>
                     <FormControl>
-                      <Input type="text" {...field} />
+                      <Input
+                        type="text"
+                        {...field}
+                        onChange={(e) => {
+                          field.onChange(e);
+                          setUsernameToCheck(e.target.value);
+                        }}
+                      />
                     </FormControl>
+                    {usernameToCheck &&
+                      usernameToCheck !== profile.username &&
+                      usernameToCheck.length > 2 && (
+                        <div className="mt-1 min-h-[1.25em] text-xs">
+                          <UsernameStatus
+                            status={
+                              usernameChecking
+                                ? "checking"
+                                : usernameCheckSuccess &&
+                                    usernameCheck?.isAvailable
+                                  ? "available"
+                                  : usernameCheckSuccess &&
+                                      !usernameCheck?.isAvailable
+                                    ? "taken"
+                                    : usernameCheckError
+                                      ? "error"
+                                      : "idle"
+                            }
+                          />
+                        </div>
+                      )}
                     <FormMessage />
                   </FormItem>
                 )}
@@ -170,7 +227,11 @@ export default function EditProfileForm({
                 <Squircle cornerRadius={10} cornerSmoothing={1} asChild>
                   <Button
                     type="submit"
-                    disabled={mutation.isPending}
+                    disabled={
+                      mutation.isPending ||
+                      usernameChecking ||
+                      (usernameCheckSuccess && !usernameCheck?.isAvailable)
+                    }
                     className="min-w-28"
                   >
                     {mutation.isPending ? (
