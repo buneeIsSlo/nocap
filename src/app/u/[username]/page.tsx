@@ -1,6 +1,7 @@
 import ProfileOwnerView from "./profile-owner-view";
 import { createClient } from "@/utils/supabase/server";
 import { Profile } from "@/lib/types";
+import ProfileView from "./profile-view";
 
 interface PageProps {
   profile: Profile;
@@ -16,5 +17,5 @@ export default async function Page({ profile }: PageProps) {
     return <ProfileOwnerView profile={profile} />;
   }
 
-  return null;
+  return <ProfileView profile={profile} />;
 }
