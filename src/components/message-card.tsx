@@ -29,7 +29,7 @@ export function MessageCard({
         )}
         {...props}
       >
-        <div className="font-nunito text-center text-xl leading-normal font-bold text-wrap">
+        <div className="font-nunito flex flex-1 items-center justify-center text-center text-xl leading-normal font-bold text-wrap">
           "{question}"
         </div>
 

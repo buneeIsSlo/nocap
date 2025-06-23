@@ -16,11 +16,23 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const { data: messages, error: messagesError } = await supabase
+    const { searchParams } = new URL(req.url);
+    const limit = parseInt(searchParams.get("limit") || "10", 10);
+    const offset = parseInt(searchParams.get("offset") || "0", 10);
+
+    const {
+      data: messages,
+      error: messagesError,
+      count,
+    } = await supabase
       .from("messages")
-      .select("*")
+      .select(
+        "id, profile_id, content, created_at, is_sender_authenticated, is_sender_visible",
+        { count: "exact" }, // Returns total number of rows exactly
+      )
       .eq("profile_id", user.id)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .range(offset, offset + limit - 1);
 
     if (messagesError) {
       return NextResponse.json(
@@ -29,7 +41,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    return NextResponse.json({ messages });
+    return NextResponse.json({ messages, count });
   } catch (error) {
     console.error(error);
     return NextResponse.json(

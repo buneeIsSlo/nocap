@@ -21,7 +21,7 @@ import {
 import { Squircle } from "@squircle-js/react";
 
 const messageSchema = z.object({
-  content: z.string().min(2, "Message too short").max(500, "Message too long"),
+  content: z.string().min(2, "Message too short").max(200, "Message too long"),
 });
 
 type MessageForm = z.infer<typeof messageSchema>;
