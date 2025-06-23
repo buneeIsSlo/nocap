@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import EditProfileForm from "./edit-profile-form";
 import { Squircle } from "@squircle-js/react";
-import { Edit, Link, LogOut } from "lucide-react";
+import { Edit, Link } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { useAcceptingMessagesMutation } from "@/hooks/useAcceptingMessagesMutation";
@@ -18,6 +18,7 @@ import {
   TooltipContent,
 } from "@/components/ui/tooltip";
 import LogoutDialog from "./logout-dialog";
+import MessagesList from "@/components/messages-list";
 
 export default function ProfileOwnerView({ profile }: { profile: Profile }) {
   const [editing, setEditing] = useState(false);
@@ -108,6 +109,7 @@ export default function ProfileOwnerView({ profile }: { profile: Profile }) {
           </div>
         </Card>
       </Squircle>
+      <MessagesList />
     </section>
   ) : (
     <EditProfileForm profile={profile} onClose={() => setEditing(false)} />

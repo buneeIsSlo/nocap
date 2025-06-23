@@ -1,6 +1,44 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 
+export async function GET(req: NextRequest) {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      return NextResponse.json(
+        { error: "Unauthorized request" },
+        { status: 401 },
+      );
+    }
+
+    const { data: messages, error: messagesError } = await supabase
+      .from("messages")
+      .select("*")
+      .eq("profile_id", user.id)
+      .order("created_at", { ascending: false });
+
+    if (messagesError) {
+      return NextResponse.json(
+        { error: messagesError.message },
+        { status: 500 },
+      );
+    }
+
+    return NextResponse.json({ messages });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
