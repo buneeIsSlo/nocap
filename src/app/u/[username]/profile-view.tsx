@@ -9,7 +9,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import toast from "react-hot-toast";
 import {
   Form,
@@ -19,9 +18,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Squircle } from "@squircle-js/react";
+import TextareaCharLimit from "@/components/textarea-char-limit";
 
 const messageSchema = z.object({
-  content: z.string().min(2, "Message too short").max(200, "Message too long"),
+  content: z.string().min(5, "Message too short").max(200, "Message too long"),
 });
 
 type MessageForm = z.infer<typeof messageSchema>;
@@ -115,11 +115,12 @@ export default function ProfileView({ profile }: { profile: Profile }) {
                 render={({ field }) => (
                   <FormItem className="w-full">
                     <FormControl>
-                      <Textarea
+                      <TextareaCharLimit
                         {...field}
+                        disabled={mutation.isPending || success}
                         placeholder="Type your anonymous message..."
                         className="min-h-[80px] w-full"
-                        disabled={mutation.isPending || success}
+                        maxLength={200}
                         onChange={(e) => {
                           field.onChange(e);
                           if (errorMsg) setErrorMsg(null);
