@@ -17,22 +17,31 @@ export async function GET(req: NextRequest) {
     }
 
     const { searchParams } = new URL(req.url);
+    const since = searchParams.get("since");
     const limit = parseInt(searchParams.get("limit") || "10", 10);
     const offset = parseInt(searchParams.get("offset") || "0", 10);
 
-    const {
-      data: messages,
-      error: messagesError,
-      count,
-    } = await supabase
+    let query = supabase
       .from("messages")
       .select(
         "id, profile_id, content, created_at, is_sender_authenticated, is_sender_visible",
         { count: "exact" }, // Returns total number of rows exactly
       )
-      .eq("profile_id", user.id)
-      .order("created_at", { ascending: false })
-      .range(offset, offset + limit - 1);
+      .eq("profile_id", user.id);
+
+    // If since_timestamp is provided, fetch only newer message
+    if (since) {
+      query = query
+        .gt("created_at", since)
+        .order("created_at", { ascending: false });
+    } else {
+      // Regular pagination for infinite scroll
+      query = query
+        .order("created_at", { ascending: false })
+        .range(offset, offset + limit - 1);
+    }
+
+    const { data: messages, error: messagesError, count } = await query;
 
     if (messagesError) {
       return NextResponse.json(

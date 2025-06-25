@@ -1,9 +1,14 @@
-import { useInfiniteQuery } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { MessageCard } from "./message-card";
 import InfiniteScrollContainer from "./infinite-scroll-container";
 import { getRelativeTime } from "@/lib/utils";
-import { Loader2 } from "lucide-react";
+import { Loader2, MessageCircleMore } from "lucide-react";
 import { Squircle } from "@squircle-js/react";
+import { Button } from "./ui/button";
 
 const LIMIT = 10;
 
@@ -23,6 +28,7 @@ function MessageLoader({ text = "Loading Messages..." }) {
 }
 
 export default function MessagesList() {
+  const queryClient = useQueryClient();
   const {
     data,
     isLoading,
@@ -49,7 +55,45 @@ export default function MessagesList() {
       return undefined;
     },
     initialPageParam: 0,
+    refetchOnWindowFocus: false,
   });
+
+  const messages = data?.pages.flatMap((page) => page.messages) || [];
+  const latestCreatedAt = messages[0]?.created_at;
+
+  // Poll for new messages every 20s
+  const { data: newMessages } = useQuery({
+    queryKey: ["newMessages", latestCreatedAt],
+    queryFn: async () => {
+      if (!latestCreatedAt) return [];
+      const res = await fetch(
+        `/api/messages?since=${encodeURIComponent(latestCreatedAt)}`,
+      );
+      const json = await res.json();
+      return json.messages || [];
+    },
+    refetchInterval: 20000,
+    enabled: !!latestCreatedAt,
+  });
+
+  const handlePrpendingNewMessages = () => {
+    if (!newMessages?.length) return;
+    queryClient.setQueryData(["messages"], (oldData: any) => {
+      if (!oldData) return oldData;
+
+      const updatedPages = [...oldData.pages];
+      updatedPages[0] = {
+        ...updatedPages[0],
+        messages: [...newMessages, ...updatedPages[0].messages],
+      };
+      return {
+        ...oldData,
+        pages: updatedPages,
+      };
+    });
+
+    queryClient.setQueryData(["newMessages", latestCreatedAt], []);
+  };
 
   if (isLoading) return <MessageLoader text="Loading messages..." />;
   if (isError)
@@ -59,37 +103,49 @@ export default function MessagesList() {
       </div>
     );
 
-  const messages = data?.pages.flatMap((page) => page.messages) || [];
-
   if (!messages.length)
     return (
       <div className="py-8 text-center text-gray-400">No messages yet.</div>
     );
 
   return (
-    <InfiniteScrollContainer
-      className="grid grid-cols-1 gap-4 py-8 md:grid-cols-2"
-      onBottomReached={() => {
-        if (hasNextPage && !isFetchingNextPage) fetchNextPage();
-      }}
-    >
-      {messages.map((msg: any, i: number) => (
-        <div key={msg.id + `${i}`}>
-          <MessageCard
-            question={msg.content}
-            time={getRelativeTime(msg.created_at)}
-            name={
-              msg.is_sender_visible
-                ? (msg.sender_id ?? "Anonymous")
-                : "Anonymous"
-            }
-            className="h-full w-full"
-          />
+    <>
+      {newMessages && newMessages.length > 0 && (
+        <div className="flex justify-center pt-8">
+          <Button
+            className="flex w-[25%] transform items-center gap-2 rounded-full p-6 text-base font-semibold shadow-md transition-all duration-300 hover:scale-105"
+            onClick={handlePrpendingNewMessages}
+          >
+            {newMessages.length} New Message
+            {newMessages.length > 1 ? "s" : ""}
+            <MessageCircleMore className="text-white/90" />
+          </Button>
         </div>
-      ))}
-      {isFetchingNextPage && (
-        <MessageLoader text="Loading previous messages..." />
       )}
-    </InfiniteScrollContainer>
+      <InfiniteScrollContainer
+        className="grid grid-cols-1 gap-4 py-8 md:grid-cols-2"
+        onBottomReached={() => {
+          if (hasNextPage && !isFetchingNextPage) fetchNextPage();
+        }}
+      >
+        {messages.map((msg: any, i: number) => (
+          <div key={msg.id + `${i}`}>
+            <MessageCard
+              question={msg.content}
+              time={getRelativeTime(msg.created_at)}
+              name={
+                msg.is_sender_visible
+                  ? (msg.sender_id ?? "Anonymous")
+                  : "Anonymous"
+              }
+              className="h-full w-full"
+            />
+          </div>
+        ))}
+        {isFetchingNextPage && (
+          <MessageLoader text="Loading previous messages..." />
+        )}
+      </InfiniteScrollContainer>
+    </>
   );
 }
