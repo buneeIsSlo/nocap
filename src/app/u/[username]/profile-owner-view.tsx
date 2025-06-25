@@ -109,7 +109,7 @@ export default function ProfileOwnerView({ profile }: { profile: Profile }) {
           </div>
         </Card>
       </Squircle>
-      <MessagesList />
+      <MessagesList isAcceptingMessages={accepting} />
     </section>
   ) : (
     <EditProfileForm profile={profile} onClose={() => setEditing(false)} />

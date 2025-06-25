@@ -27,7 +27,13 @@ function MessageLoader({ text = "Loading Messages..." }) {
   );
 }
 
-export default function MessagesList() {
+interface MessagesListProps {
+  isAcceptingMessages: boolean;
+}
+
+export default function MessagesList({
+  isAcceptingMessages,
+}: MessagesListProps) {
   const queryClient = useQueryClient();
   const {
     data,
@@ -73,7 +79,7 @@ export default function MessagesList() {
       return json.messages || [];
     },
     refetchInterval: 20000,
-    enabled: !!latestCreatedAt,
+    enabled: !!latestCreatedAt && isAcceptingMessages,
   });
 
   const handlePrpendingNewMessages = () => {
