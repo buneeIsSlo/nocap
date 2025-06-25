@@ -9,6 +9,7 @@ import { getRelativeTime } from "@/lib/utils";
 import { Loader2, MessageCircleMore } from "lucide-react";
 import { Squircle } from "@squircle-js/react";
 import { Button } from "./ui/button";
+import { useRef } from "react";
 
 const LIMIT = 10;
 
@@ -35,6 +36,7 @@ export default function MessagesList({
   isAcceptingMessages,
 }: MessagesListProps) {
   const queryClient = useQueryClient();
+  const containerRef = useRef<HTMLDivElement>(null);
   const {
     data,
     isLoading,
@@ -62,6 +64,8 @@ export default function MessagesList({
     },
     initialPageParam: 0,
     refetchOnWindowFocus: false,
+    staleTime: 1000 * 60,
+    refetchInterval: 5 * 1000 * 60,
   });
 
   const messages = data?.pages.flatMap((page) => page.messages) || [];
@@ -99,6 +103,10 @@ export default function MessagesList({
     });
 
     queryClient.setQueryData(["newMessages", latestCreatedAt], []);
+    // Scroll to top of the message list
+    if (containerRef.current) {
+      containerRef.current.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   if (isLoading) return <MessageLoader text="Loading messages..." />;
@@ -117,9 +125,9 @@ export default function MessagesList({
   return (
     <>
       {newMessages && newMessages.length > 0 && (
-        <div className="flex justify-center pt-8">
+        <div className="sticky top-0 z-30 flex justify-center pt-8">
           <Button
-            className="flex w-[25%] transform items-center gap-2 rounded-full p-6 text-base font-semibold shadow-md transition-all duration-300 hover:scale-105"
+            className="bg-primary flex items-center gap-2 rounded-full p-3 text-sm font-semibold text-white shadow-md transition-all duration-300 hover:scale-105 md:w-[25%] md:p-6 md:text-base"
             onClick={handlePrpendingNewMessages}
           >
             {newMessages.length} New Message
@@ -128,6 +136,7 @@ export default function MessagesList({
           </Button>
         </div>
       )}
+      <div ref={containerRef} />
       <InfiniteScrollContainer
         className="grid grid-cols-1 gap-4 py-8 md:grid-cols-2"
         onBottomReached={() => {
