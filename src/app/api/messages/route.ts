@@ -128,3 +128,62 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      return NextResponse.json(
+        { error: "Unauthorized request" },
+        { status: 401 },
+      );
+    }
+
+    const { searchParams } = new URL(req.url);
+    const messageId = searchParams.get("id");
+    if (!messageId) {
+      return NextResponse.json(
+        { error: "Missing message id" },
+        { status: 400 },
+      );
+    }
+
+    // Check ownership
+    const { data: message, error: fetchError } = await supabase
+      .from("messages")
+      .select("id, profile_id")
+      .eq("id", messageId)
+      .single();
+
+    if (fetchError || !message) {
+      return NextResponse.json({ error: "Message not found" }, { status: 404 });
+    }
+    if (message.profile_id !== user.id) {
+      return NextResponse.json(
+        { error: "Unauthorized request" },
+        { status: 403 },
+      );
+    }
+
+    const { error: deleteError } = await supabase
+      .from("messages")
+      .delete()
+      .eq("id", messageId);
+
+    if (deleteError) {
+      return NextResponse.json({ error: deleteError.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
+  }
+}

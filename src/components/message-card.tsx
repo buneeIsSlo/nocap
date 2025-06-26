@@ -3,12 +3,15 @@
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Squircle } from "@squircle-js/react";
+import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
 
 interface MessageCardProps extends React.ComponentPropsWithoutRef<"div"> {
   question: string;
   name?: string;
   time: string;
   avatarSrc?: string;
+  onDelete?: () => void;
 }
 
 export function MessageCard({
@@ -17,6 +20,7 @@ export function MessageCard({
   time,
   avatarSrc,
   className,
+  onDelete,
   ...props
 }: MessageCardProps) {
   return (
@@ -24,11 +28,23 @@ export function MessageCard({
       <div
         data-slot="message-card"
         className={cn(
-          "bg-card text-card-foreground flex w-md max-w-md flex-col justify-between gap-4 overflow-hidden rounded-xl border p-6 shadow-sm",
+          "bg-card text-card-foreground group relative flex w-md max-w-md flex-col justify-between gap-4 overflow-hidden rounded-xl border p-6 shadow-sm hover:bg-neutral-50",
           className,
         )}
         {...props}
       >
+        {onDelete && (
+          <Button
+            type="button"
+            size="icon"
+            variant={"outline"}
+            className="border-destructive absolute top-3 right-3 z-10 hidden rounded-full opacity-80 transition group-hover:grid group-hover:place-content-center"
+            onClick={onDelete}
+            aria-label="Delete message"
+          >
+            <Trash2 className="text-destructive size-4" />
+          </Button>
+        )}
         <div className="font-nunito flex flex-1 items-center justify-center text-center text-xl leading-normal font-bold text-wrap">
           "{question}"
         </div>

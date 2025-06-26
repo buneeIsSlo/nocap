@@ -2,6 +2,7 @@ import {
   useInfiniteQuery,
   useQuery,
   useQueryClient,
+  useMutation,
 } from "@tanstack/react-query";
 import { MessageCard } from "./message-card";
 import InfiniteScrollContainer from "./infinite-scroll-container";
@@ -10,6 +11,7 @@ import { Loader2, MessageCircleMore } from "lucide-react";
 import { Squircle } from "@squircle-js/react";
 import { Button } from "./ui/button";
 import { useRef } from "react";
+import toast from "react-hot-toast";
 
 const LIMIT = 10;
 
@@ -109,6 +111,34 @@ export default function MessagesList({
     }
   };
 
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await fetch(`/api/messages?id=${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete");
+    },
+    onMutate: async (id: string) => {
+      await queryClient.cancelQueries({ queryKey: ["messages"] });
+      const prevData = queryClient.getQueryData(["messages"]);
+
+      queryClient.setQueryData(["messages"], (old: any) => {
+        if (!old) return old;
+        const updatedPages = old.pages.map((page: any) => ({
+          ...page,
+          messages: page.messages.filter((msg: any) => msg.id !== id),
+        }));
+        return { ...old, pages: updatedPages };
+      });
+
+      return { prevData };
+    },
+    onError: (_err, _id, context) => {
+      if (context?.prevData) {
+        queryClient.setQueryData(["messages"], context.prevData);
+      }
+      toast.error("Failed to delete message");
+    },
+  });
+
   if (isLoading) return <MessageLoader text="Loading messages..." />;
   if (isError)
     return (
@@ -154,6 +184,9 @@ export default function MessagesList({
                   : "Anonymous"
               }
               className="h-full w-full"
+              onDelete={async () => {
+                deleteMutation.mutate(msg.id);
+              }}
             />
           </div>
         ))}
