@@ -36,7 +36,7 @@ export default function MessagesList({
   isAcceptingMessages,
 }: MessagesListProps) {
   const queryClient = useQueryClient();
-  const containerRef = useRef<HTMLDivElement>(null);
+  const topOfListRef = useRef<HTMLDivElement>(null);
   const {
     data,
     isLoading,
@@ -104,8 +104,8 @@ export default function MessagesList({
 
     queryClient.setQueryData(["newMessages", latestCreatedAt], []);
     // Scroll to top of the message list
-    if (containerRef.current) {
-      containerRef.current.scrollIntoView({ behavior: "smooth" });
+    if (topOfListRef.current) {
+      topOfListRef.current.scrollIntoView({ behavior: "smooth" });
     }
   };
 
@@ -124,6 +124,7 @@ export default function MessagesList({
 
   return (
     <>
+      <div ref={topOfListRef} />
       {newMessages && newMessages.length > 0 && (
         <div className="sticky top-0 z-30 flex justify-center pt-8">
           <Button
@@ -136,7 +137,6 @@ export default function MessagesList({
           </Button>
         </div>
       )}
-      <div ref={containerRef} />
       <InfiniteScrollContainer
         className="grid grid-cols-1 gap-4 py-8 md:grid-cols-2"
         onBottomReached={() => {
