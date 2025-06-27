@@ -24,6 +24,7 @@ import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import useDebouncedValue from "@/hooks/useDebounceValue";
 import UsernameStatus from "@/components/username-status";
+import { createClient } from "@/utils/supabase/client";
 
 const profileSchema = z.object({
   username: z
@@ -44,6 +45,9 @@ const profileSchema = z.object({
 });
 
 type ProfileForm = z.infer<typeof profileSchema>;
+
+const STORAGE_URL = process.env.NEXT_PUBLIC_SUPABASE_STORAGE_URL;
+const STORAGE_BUCKET_NAME = "nocap";
 
 export default function EditProfileForm({
   profile,
@@ -92,6 +96,33 @@ export default function EditProfileForm({
 
   const mutation = useMutation({
     mutationFn: async (data: ProfileForm) => {
+      let avatarUrlToSave = profile.avatar || "";
+
+      if (data.avatar instanceof File) {
+        const supabase = createClient();
+        const fileExt = data.avatar.name.split(".").pop();
+        const filePath = `avatars/${profile.id}_${Date.now()}.${fileExt}`;
+
+        if (profile.avatar && profile.avatar.startsWith(`${STORAGE_URL}`)) {
+          const oldPath = profile.avatar.split(`${STORAGE_BUCKET_NAME}/`)[1];
+          if (oldPath) {
+            await supabase.storage.from(STORAGE_BUCKET_NAME).remove([oldPath]);
+          }
+        }
+
+        const { error } = await supabase.storage
+          .from(`${STORAGE_BUCKET_NAME}`)
+          .upload(filePath, data.avatar, {
+            cacheControl: "3600",
+            upsert: true,
+          });
+
+        if (error) {
+          throw { error: "Failed to upload avatar" };
+        }
+
+        avatarUrlToSave = `${STORAGE_URL}/object/public/${STORAGE_BUCKET_NAME}/avatars/${encodeURIComponent(filePath.replace("avatars/", ""))}`;
+      }
       const response = await fetch("/api/profile/update", {
         method: "PUT",
         headers: { "Content-type": "application/json" },
@@ -99,6 +130,7 @@ export default function EditProfileForm({
           id: profile.id,
           username: data.username,
           bio: data.bio,
+          avatar: avatarUrlToSave,
         }),
       });
 
@@ -110,8 +142,8 @@ export default function EditProfileForm({
       toast.success("Profile updated!");
       if (variables.username !== profile.username) {
         router.replace(`/u/${variables.username}`);
-        router.refresh();
       }
+      router.refresh();
       onClose();
     },
     onError: (err: any) => {
@@ -154,8 +186,14 @@ export default function EditProfileForm({
                         accept="image/*"
                         onChange={(e) => {
                           const file = e.target.files?.[0];
-                          field.onChange(file);
                           if (file) {
+                            if (file.size > 1024 * 1024) {
+                              // 1MB
+                              toast.error("Image must be 1MB or less");
+                              e.target.value = "";
+                              return;
+                            }
+                            field.onChange(file);
                             const url = URL.createObjectURL(file);
                             setAvatarUrl(url);
                           }
@@ -163,7 +201,7 @@ export default function EditProfileForm({
                       />
                     </FormControl>
                     <FormDescription>
-                      Upload a new avatar image.
+                      Click to upload a new avatar image.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

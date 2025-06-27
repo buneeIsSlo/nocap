@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function PUT(req: NextRequest) {
   const supabase = await createClient();
 
-  const { id, username, bio } = await req.json();
+  const { id, username, bio, avatar } = await req.json();
 
   if (!id || !username) {
     return NextResponse.json(
@@ -35,7 +35,7 @@ export async function PUT(req: NextRequest) {
 
   const { error: updateError } = await supabase
     .from("profiles")
-    .update({ username, bio })
+    .update({ username, bio, avatar })
     .eq("id", id);
 
   if (updateError) {
