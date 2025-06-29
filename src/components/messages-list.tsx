@@ -12,21 +12,25 @@ import { Squircle } from "@squircle-js/react";
 import { Button } from "./ui/button";
 import { useRef } from "react";
 import toast from "react-hot-toast";
+import { motion, AnimatePresence } from "motion/react";
 
 const LIMIT = 10;
 
 function MessageLoader({ text = "Loading Messages..." }) {
   return (
-    <Squircle
-      cornerRadius={15}
-      cornerSmoothing={1}
-      className="col-span-full mx-auto mt-4 flex w-fit justify-center bg-white"
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="col-span-full mx-auto mt-4 flex w-fit justify-center"
     >
-      <div className="flex items-center justify-center gap-2 p-4 font-semibold">
-        <Loader2 className="text-primary animate-spin" />
-        {text}
-      </div>
-    </Squircle>
+      <Squircle cornerRadius={15} cornerSmoothing={1} className="bg-white">
+        <div className="flex items-center justify-center gap-2 p-4 font-semibold">
+          <Loader2 className="text-primary animate-spin" />
+          {text}
+        </div>
+      </Squircle>
+    </motion.div>
   );
 }
 
@@ -157,14 +161,25 @@ export default function MessagesList({
       <div ref={topOfListRef} />
       {newMessages && newMessages.length > 0 && (
         <div className="sticky top-0 z-30 flex justify-center pt-8">
-          <Button
-            className="bg-primary flex items-center gap-2 rounded-full p-3 text-sm font-semibold text-white shadow-md transition-all duration-300 hover:scale-105 md:w-[25%] md:p-6 md:text-base"
-            onClick={handlePrpendingNewMessages}
+          <motion.div
+            initial={{ opacity: 0, y: -20, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.9 }}
+            transition={{
+              duration: 0.4,
+              ease: [0.25, 0.46, 0.45, 0.94],
+            }}
+            className="mx-auto"
           >
-            {newMessages.length} New Message
-            {newMessages.length > 1 ? "s" : ""}
-            <MessageCircleMore className="text-white/90" />
-          </Button>
+            <Button
+              className="bg-primary flex w-fit items-center gap-2 rounded-full p-3 text-sm font-semibold text-white shadow-md transition-all duration-300 hover:scale-105 md:p-6 md:text-base"
+              onClick={handlePrpendingNewMessages}
+            >
+              {newMessages.length} New Message
+              {newMessages.length > 1 ? "s" : ""}
+              <MessageCircleMore className="text-white/90" />
+            </Button>
+          </motion.div>
         </div>
       )}
       <InfiniteScrollContainer
@@ -173,23 +188,36 @@ export default function MessagesList({
           if (hasNextPage && !isFetchingNextPage) fetchNextPage();
         }}
       >
-        {messages.map((msg: any, i: number) => (
-          <div key={msg.id + `${i}`}>
-            <MessageCard
-              question={msg.content}
-              time={getRelativeTime(msg.created_at)}
-              name={
-                msg.is_sender_visible
-                  ? (msg.sender_id ?? "Anonymous")
-                  : "Anonymous"
-              }
-              className="h-full w-full"
-              onDelete={async () => {
-                deleteMutation.mutate(msg.id);
+        <AnimatePresence mode="popLayout">
+          {messages.map((msg: any, i: number) => (
+            <motion.div
+              key={msg.id}
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.95 }}
+              transition={{
+                duration: 0.3,
+                delay: Math.min(i * 0.05, 0.5), // Stagger effect, max 0.5s delay
+                ease: [0.25, 0.46, 0.45, 0.94],
               }}
-            />
-          </div>
-        ))}
+              layout
+            >
+              <MessageCard
+                question={msg.content}
+                time={getRelativeTime(msg.created_at)}
+                name={
+                  msg.is_sender_visible
+                    ? (msg.sender_id ?? "Anonymous")
+                    : "Anonymous"
+                }
+                className="h-full w-full"
+                onDelete={async () => {
+                  deleteMutation.mutate(msg.id);
+                }}
+              />
+            </motion.div>
+          ))}
+        </AnimatePresence>
         {isFetchingNextPage && (
           <MessageLoader text="Loading previous messages..." />
         )}

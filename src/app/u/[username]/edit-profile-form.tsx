@@ -14,14 +14,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Squircle } from "@squircle-js/react";
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import useDebouncedValue from "@/hooks/useDebounceValue";
 import UsernameStatus from "@/components/username-status";
 import { createClient } from "@/utils/supabase/client";
@@ -162,7 +162,21 @@ export default function EditProfileForm({
   return (
     <section className="mx-auto max-w-3xl py-16">
       <Squircle cornerRadius={30} cornerSmoothing={1}>
-        <Card className="flex w-full flex-col items-center gap-4 p-8">
+        <Card className="flex w-full flex-col gap-4 p-8">
+          <CardHeader className="flex w-full flex-row items-center justify-between p-0">
+            <CardTitle className="text-lg">Edit Profile</CardTitle>
+            <Button
+              type="button"
+              variant={"outline"}
+              size={"icon"}
+              onClick={onClose}
+              className="hover:text-destructive ml-2 rounded-full transition-colors"
+              aria-label="Cancel edit"
+              disabled={mutation.isPending}
+            >
+              <X className="size-5" />
+            </Button>
+          </CardHeader>
           <Avatar className="mb-2 size-14">
             <AvatarImage src={avatarUrl} alt={profile.username!} />
             <AvatarFallback>
@@ -188,7 +202,6 @@ export default function EditProfileForm({
                           const file = e.target.files?.[0];
                           if (file) {
                             if (file.size > 1024 * 1024) {
-                              // 1MB
                               toast.error("Image must be 1MB or less");
                               e.target.value = "";
                               return;
@@ -198,6 +211,7 @@ export default function EditProfileForm({
                             setAvatarUrl(url);
                           }
                         }}
+                        disabled={mutation.isPending}
                       />
                     </FormControl>
                     <FormDescription>
@@ -221,6 +235,7 @@ export default function EditProfileForm({
                           field.onChange(e);
                           setUsernameToCheck(e.target.value);
                         }}
+                        disabled={mutation.isPending}
                       />
                     </FormControl>
                     {usernameToCheck &&
@@ -255,7 +270,11 @@ export default function EditProfileForm({
                   <FormItem className="w-full">
                     <FormLabel>Bio</FormLabel>
                     <FormControl>
-                      <Textarea className="[resize:none]" {...field} />
+                      <Textarea
+                        className="[resize:none]"
+                        {...field}
+                        disabled={mutation.isPending}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -284,6 +303,7 @@ export default function EditProfileForm({
                     variant="secondary"
                     onClick={onClose}
                     className="min-w-28"
+                    disabled={mutation.isPending}
                   >
                     Cancel
                   </Button>
