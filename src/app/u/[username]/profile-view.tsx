@@ -20,6 +20,9 @@ import {
 import { Squircle } from "@squircle-js/react";
 import TextareaCharLimit from "@/components/textarea-char-limit";
 import { motion, AnimatePresence } from "motion/react";
+import { SignInDialog } from "@/components/auth/sign-in-dialog";
+import { createClient } from "@/utils/supabase/client";
+import { useRouter } from "next/navigation";
 
 const messageSchema = z.object({
   content: z.string().min(5, "Message too short").max(200, "Message too long"),
@@ -27,13 +30,24 @@ const messageSchema = z.object({
 
 type MessageForm = z.infer<typeof messageSchema>;
 
-export default function ProfileView({ profile }: { profile: Profile }) {
+interface ProfileViewProps {
+  profile: Profile;
+  loggedInProfile: Profile | null;
+}
+
+export default function ProfileView({
+  profile,
+  loggedInProfile,
+}: ProfileViewProps) {
   const form = useForm<MessageForm>({
     resolver: zodResolver(messageSchema),
     defaultValues: { content: "" },
   });
   const [success, setSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [signInOpen, setSignInOpen] = useState(false);
+  const router = useRouter();
+  const supabase = createClient();
 
   // Adjust Squircle when textarea is resized
   const cardRef = useRef<HTMLDivElement>(null);
@@ -79,8 +93,20 @@ export default function ProfileView({ profile }: { profile: Profile }) {
     },
   });
 
+  const handleGetOwnMessages = async () => {
+    const { data } = await supabase.auth.getUser();
+    if (!data.user) {
+      setSignInOpen(true);
+    } else if (loggedInProfile?.username) {
+      console.log("Entered here I guessss");
+      router.push(`/u/${loggedInProfile.username}`);
+    } else {
+      router.push("/");
+    }
+  };
+
   return (
-    <section className="mx-auto max-w-3xl py-16">
+    <section className="mx-auto flex min-h-screen max-w-2xl flex-col justify-between py-16">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -103,10 +129,10 @@ export default function ProfileView({ profile }: { profile: Profile }) {
                 </AvatarFallback>
               </Avatar>
               <div className="flex flex-col">
-                <span className="font-semibold">@{profile.username}</span>
-                <span className="text-sm font-medium text-black/80">
-                  Send me anonymous messages!
-                </span>
+                <span className="text-main-gradient">@{profile.username}</span>
+                <p className="text-base font-medium text-black">
+                  Message me anonymously 🤫
+                </p>
               </div>
             </div>
             {/* Message form */}
@@ -114,7 +140,7 @@ export default function ProfileView({ profile }: { profile: Profile }) {
               <Form {...form}>
                 <form
                   onSubmit={form.handleSubmit((data) => mutation.mutate(data))}
-                  className="flex w-full max-w-xl flex-col items-center gap-2"
+                  className="flex w-full flex-col items-center gap-2"
                 >
                   <FormField
                     name="content"
@@ -134,7 +160,7 @@ export default function ProfileView({ profile }: { profile: Profile }) {
                             }}
                           />
                         </FormControl>
-                        <FormMessage />
+                        <FormMessage className="font-semibold" />
                       </FormItem>
                     )}
                   />
@@ -156,7 +182,7 @@ export default function ProfileView({ profile }: { profile: Profile }) {
                   <AnimatePresence mode="wait">
                     {success && (
                       <motion.span
-                        className="mt-1 text-green-600"
+                        className="mt-1 font-semibold text-green-600"
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
@@ -167,7 +193,7 @@ export default function ProfileView({ profile }: { profile: Profile }) {
                     )}
                     {errorMsg && (
                       <motion.span
-                        className="mt-1 block w-full text-center text-red-600"
+                        className="mt-1 block w-full text-center font-semibold text-red-600"
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
@@ -183,6 +209,16 @@ export default function ProfileView({ profile }: { profile: Profile }) {
           </Card>
         </Squircle>
       </motion.div>
+      {/* Sticky footer CTA */}
+      <div className="max-w-2xlpx-4 z-10 mx-auto w-full py-4 backdrop-blur">
+        <Button
+          className="w-full rounded-full py-8 text-base"
+          onClick={handleGetOwnMessages}
+        >
+          Get your own messages 💬
+        </Button>
+        <SignInDialog open={signInOpen} onOpenChange={setSignInOpen} />
+      </div>
     </section>
   );
 }

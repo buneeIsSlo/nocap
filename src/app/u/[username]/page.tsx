@@ -13,9 +13,23 @@ export default async function Page({ profile }: PageProps) {
     data: { user: loggedInUser },
   } = await supabase.auth.getUser();
 
+  let loggedInProfile = null;
+  if (loggedInUser) {
+    if (loggedInUser.id === profile.id) {
+      loggedInProfile = profile;
+    } else {
+      const { data } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", loggedInUser.id)
+        .single();
+      loggedInProfile = data;
+    }
+  }
+
   if (loggedInUser && loggedInUser.id === profile.id) {
     return <ProfileOwnerView profile={profile} />;
   }
 
-  return <ProfileView profile={profile} />;
+  return <ProfileView profile={profile} loggedInProfile={loggedInProfile} />;
 }
