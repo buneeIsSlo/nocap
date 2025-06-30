@@ -20,7 +20,7 @@ import {
 import { Squircle } from "@squircle-js/react";
 import TextareaCharLimit from "@/components/textarea-char-limit";
 import { motion, AnimatePresence } from "motion/react";
-import { SignInDialog } from "@/components/auth/sign-in-dialog";
+import { SignInDialog } from "@/components/sign-in-dialog";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 

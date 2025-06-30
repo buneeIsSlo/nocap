@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Squircle } from "@squircle-js/react";
-import { SignInDialog } from "@/components/auth/sign-in-dialog";
+import { SignInDialog } from "@/components/sign-in-dialog";
 import { motion } from "motion/react";
 
 export default function HeroSection() {
