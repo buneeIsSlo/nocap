@@ -3,8 +3,11 @@
 import { Button } from "@/components/ui/button";
 import { Squircle } from "@squircle-js/react";
 import { motion } from "motion/react";
+import { useState } from "react";
+import { SignInDialog } from "@/components/sign-in-dialog";
 
 const ConnectionsSection = () => {
+  const [showSignIn, setShowSignIn] = useState(false);
   return (
     <section className="relative min-h-screen bg-black px-4 py-32">
       <div className="mx-auto max-w-4xl text-center">
@@ -50,12 +53,14 @@ const ConnectionsSection = () => {
             <Button
               size="lg"
               className="transform bg-white p-10 text-2xl font-bold text-black transition-all duration-300 hover:scale-105 hover:bg-white hover:brightness-110"
+              onClick={() => setShowSignIn(true)}
             >
               Let's go!
             </Button>
           </Squircle>
         </motion.div>
       </div>
+      <SignInDialog open={showSignIn} onOpenChange={setShowSignIn} />
     </section>
   );
 };
