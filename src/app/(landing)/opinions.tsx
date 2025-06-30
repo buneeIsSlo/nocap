@@ -1,8 +1,11 @@
+"use client";
+
 import { MessageCard } from "@/components/message-card";
 import React from "react";
 import { AnimatedList } from "@/components/animated-list";
 import { Squircle } from "@squircle-js/react";
 import Image from "next/image";
+import { motion } from "motion/react";
 
 interface Item {
   question: string;
@@ -37,17 +40,72 @@ const opinions: Item[] = [
     name: "Anonymous",
     time: "1m",
   },
+  {
+    question: "Bro that fade is clean af! 🔥",
+    name: "Anonymous",
+    time: "15m",
+  },
+  {
+    question: "Oh no no, look at the top of his head XD",
+    name: "Anonymous",
+    time: "10m",
+  },
+  {
+    question: "What's the name of this cut? Need to show my barber",
+    name: "Anonymous",
+    time: "5m",
+  },
+  {
+    question: "Yeah, that's a wrap. We can't talk anymore.",
+    name: "Anonymous",
+    time: "2m",
+  },
+  {
+    question: "Can i kick? 🥰😘",
+    name: "Anonymous",
+    time: "1m",
+  },
 ];
 
 export default function Opinions() {
   return (
     <section className="relative min-h-screen bg-black px-4 py-32">
       <div className="z-10 mx-auto max-w-6xl text-center">
-        <h2 className="text-main-gradient mx-auto max-w-4xl text-5xl leading-32 font-black text-balance md:text-8xl lg:text-9xl">
-          Ask for Opinions
-        </h2>
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: [0.68, -0.6, 0.32, 1.6] }}
+          viewport={{ once: true }}
+          className="text-main-gradient mx-auto max-w-4xl text-5xl leading-32 font-black text-balance md:text-8xl lg:text-9xl"
+        >
+          Ask for
+          <br />
+          <motion.span
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{
+              duration: 0.4,
+              ease: [0.68, -0.6, 0.32, 1.6],
+              delay: 0.2,
+            }}
+            viewport={{ once: true }}
+            className="inline-block"
+          >
+            <span className="text-main-gradient">Opinions</span>
+          </motion.span>
+        </motion.h2>
         <div className="flex w-full flex-row justify-between py-24">
-          <div className="relative py-8">
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{
+              duration: 0.5,
+              ease: [0.68, -0.6, 0.32, 1.6],
+              delay: 0.3,
+            }}
+            viewport={{ once: true }}
+            className="relative py-8"
+          >
             <Squircle
               asChild
               cornerRadius={30}
@@ -76,7 +134,7 @@ export default function Opinions() {
                 Fresh cut. What do you think?
               </span>
             </Squircle>
-          </div>
+          </motion.div>
           <div className="relative flex h-[500px] flex-col overflow-hidden p-2">
             <AnimatedList>
               {opinions.map((item, idx) => (

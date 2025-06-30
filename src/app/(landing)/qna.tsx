@@ -1,6 +1,9 @@
+"use client";
+
 import { MessageCard } from "@/components/message-card";
 import React from "react";
 import { Marquee } from "@/components/marquee";
+import { motion } from "motion/react";
 
 interface Item {
   question: string;
@@ -51,9 +54,29 @@ export default function QnA() {
   return (
     <section className="relative bg-black px-4 py-32">
       <div className="z-10 mx-auto max-w-6xl text-center">
-        <h2 className="text-main-gradient mx-auto max-w-4xl text-5xl leading-32 font-black text-balance md:text-8xl lg:text-9xl">
-          Answer questions
-        </h2>
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: [0.68, -0.6, 0.32, 1.6] }}
+          viewport={{ once: true }}
+          className="text-main-gradient mx-auto max-w-4xl text-5xl leading-32 font-black md:text-8xl lg:text-9xl"
+        >
+          Answer
+          <br />
+          <motion.span
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{
+              duration: 0.4,
+              ease: [0.68, -0.6, 0.32, 1.6],
+              delay: 0.2,
+            }}
+            viewport={{ once: true }}
+            className="inline-block"
+          >
+            <span className="text-main-gradient">Questions</span>
+          </motion.span>
+        </motion.h2>
         <div className="relative overflow-hidden py-24">
           <Marquee pauseOnHover className="[--duration:20s]">
             {firstRowQuestions.map((item, idx) => (
