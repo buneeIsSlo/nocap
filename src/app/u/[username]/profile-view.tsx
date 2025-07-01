@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
 import {
@@ -49,24 +49,6 @@ export default function ProfileView({
   const router = useRouter();
   const supabase = createClient();
 
-  // Adjust Squircle when textarea is resized
-  const cardRef = useRef<HTMLDivElement>(null);
-  const [squircleSize, setSquircleSize] = useState<null | {
-    width: number;
-    height: number;
-  }>(null);
-  useEffect(() => {
-    if (!cardRef.current) return;
-    const updateSize = () => {
-      const rect = cardRef.current!.getBoundingClientRect();
-      setSquircleSize({ width: rect.width, height: rect.height });
-    };
-    updateSize();
-    const observer = new window.ResizeObserver(updateSize);
-    observer.observe(cardRef.current);
-    return () => observer.disconnect();
-  }, []);
-
   const mutation = useMutation({
     mutationFn: async (data: MessageForm) => {
       const res = await fetch("/api/messages", {
@@ -106,20 +88,21 @@ export default function ProfileView({
   };
 
   return (
-    <section className="mx-auto flex min-h-screen max-w-2xl flex-col justify-between py-16">
+    <section className="mx-auto flex min-h-screen max-w-2xl flex-col justify-between px-4 py-16">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+        transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+        className="w-full"
       >
         <Squircle
           cornerRadius={30}
           cornerSmoothing={1}
-          {...(squircleSize
-            ? { width: squircleSize.width, height: squircleSize.height }
-            : null)}
+          width={"100%" as unknown as number}
+          height={"100%" as unknown as number}
+          asChild
         >
-          <Card ref={cardRef} className="flex flex-col items-center gap-4 p-8">
+          <Card className="flex h-full w-full flex-col items-center gap-4 p-8">
             {/* Profile info and prompt */}
             <div className="mb-2 flex w-full items-center gap-3">
               <Avatar className="size-14">
