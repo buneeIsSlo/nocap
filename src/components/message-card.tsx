@@ -24,9 +24,16 @@ export function MessageCard({
   ...props
 }: MessageCardProps) {
   return (
-    <Squircle asChild cornerRadius={25} cornerSmoothing={1}>
+    <Squircle
+      asChild
+      cornerRadius={25}
+      cornerSmoothing={1}
+      width={"100%" as unknown as number}
+      height={"100%" as unknown as number}
+    >
       <div
         data-slot="message-card"
+        tabIndex={0}
         className={cn(
           "bg-card text-card-foreground group relative flex w-md max-w-md flex-col justify-between gap-4 overflow-hidden rounded-xl border p-6 shadow-sm hover:bg-neutral-50",
           className,
@@ -38,7 +45,7 @@ export function MessageCard({
             type="button"
             size="icon"
             variant={"outline"}
-            className="border-destructive absolute top-3 right-3 z-10 hidden rounded-full opacity-80 transition group-hover:grid group-hover:place-content-center"
+            className="border-destructive absolute top-3 right-3 z-10 hidden rounded-full opacity-80 transition group-hover:grid group-hover:place-content-center group-focus:grid group-focus:place-content-center"
             onClick={onDelete}
             aria-label="Delete message"
           >
