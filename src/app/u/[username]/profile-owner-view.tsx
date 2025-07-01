@@ -38,7 +38,7 @@ export default function ProfileOwnerView({ profile }: { profile: Profile }) {
   };
 
   return (
-    <section className="mx-auto max-w-3xl py-16">
+    <section className="mx-auto max-w-3xl px-4 py-16">
       <AnimatePresence mode="wait">
         {!editing ? (
           <motion.div
@@ -46,44 +46,34 @@ export default function ProfileOwnerView({ profile }: { profile: Profile }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+            transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
           >
             <Squircle cornerRadius={30} cornerSmoothing={1}>
-              <Card className="flex w-full flex-row justify-between gap-1 p-8">
-                <div className="flex flex-col gap-1">
-                  <Avatar className="size-14">
-                    <AvatarImage
-                      src={profile.avatar!}
-                      alt={profile.username!}
-                    />
-                    <AvatarFallback>
-                      {profile.username?.[0]?.toUpperCase() ?? "?"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <h1 className="text-main-gradient text-xl font-semibold">
-                    {profile.username}
-                  </h1>
-                  {profile.bio && <p className="max-w-xl">{profile.bio}</p>}
-                  <p className="mb-8 text-xs text-gray-400">
-                    Joined:{" "}
-                    {profile.created_at
-                      ? new Date(profile.created_at).toLocaleDateString()
-                      : "Unknown"}
-                  </p>
-                  <Squircle cornerRadius={10} cornerSmoothing={1} asChild>
-                    <Button
-                      className="w-fit"
-                      onClick={() => {
-                        navigator.clipboard.writeText(window.location.href);
-                        toast.success("Profile link copied!");
-                      }}
-                    >
-                      <Link className="size-4" />
-                      Copy Profile Link
-                    </Button>
-                  </Squircle>
-                </div>
-                <div className="flex flex-col items-end justify-between">
+              <Card className="flex w-full !flex-col justify-between gap-4 p-8">
+                <div className="flex justify-between">
+                  <div className="flex flex-col gap-1">
+                    <Avatar className="size-14">
+                      <AvatarImage
+                        src={profile.avatar!}
+                        alt={profile.username!}
+                      />
+                      <AvatarFallback>
+                        {profile.username?.[0]?.toUpperCase() ?? "?"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <h1 className="text-main-gradient text-xl font-semibold">
+                      {profile.username}
+                    </h1>
+                    {profile.bio && (
+                      <p className="max-w-xl text-gray-600">{profile.bio}</p>
+                    )}
+                    <p className="text-muted-foreground mb-8 text-xs">
+                      Joined:{" "}
+                      {profile.created_at
+                        ? new Date(profile.created_at).toLocaleDateString()
+                        : "Unknown"}
+                    </p>
+                  </div>
                   <div className="flex gap-2">
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -100,6 +90,20 @@ export default function ProfileOwnerView({ profile }: { profile: Profile }) {
                     </Tooltip>
                     <LogoutDialog />
                   </div>
+                </div>
+                <div className="flex flex-col justify-between md:flex-row md:items-end">
+                  <Squircle cornerRadius={10} cornerSmoothing={1} asChild>
+                    <Button
+                      className="w-fit"
+                      onClick={() => {
+                        navigator.clipboard.writeText(window.location.href);
+                        toast.success("Profile link copied!");
+                      }}
+                    >
+                      <Link className="size-4" />
+                      Copy Profile Link
+                    </Button>
+                  </Squircle>
                   <div className="mt-4 flex items-center gap-2">
                     <label
                       htmlFor="accepting-switch"
@@ -132,7 +136,7 @@ export default function ProfileOwnerView({ profile }: { profile: Profile }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+            transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
           >
             <EditProfileForm
               profile={profile}
