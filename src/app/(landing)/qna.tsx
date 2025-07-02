@@ -52,14 +52,14 @@ const secondRowQuestions = questions.slice(questions.length / 2);
 
 export default function QnA() {
   return (
-    <section className="relative bg-black px-4 py-32">
+    <section className="relative bg-black px-4 pb-32">
       <div className="z-10 mx-auto max-w-6xl text-center">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: [0.68, -0.6, 0.32, 1.6] }}
           viewport={{ once: true }}
-          className="text-main-gradient mx-auto max-w-4xl text-5xl leading-32 font-black md:text-8xl lg:text-9xl"
+          className="text-main-gradient mx-auto max-w-4xl text-5xl font-black md:text-8xl md:leading-32 lg:text-9xl"
         >
           Answer
           <br />
@@ -77,7 +77,7 @@ export default function QnA() {
             <span className="text-main-gradient">Questions</span>
           </motion.span>
         </motion.h2>
-        <div className="relative overflow-hidden py-24">
+        <div className="relative overflow-hidden py-16 md:py-24">
           <Marquee pauseOnHover className="[--duration:20s]">
             {firstRowQuestions.map((item, idx) => (
               <MessageCard key={idx} {...item} />
@@ -88,8 +88,8 @@ export default function QnA() {
               <MessageCard key={idx} {...item} />
             ))}
           </Marquee>
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-black"></div>
-          <div className="pointer-events-none absolute inset-y-0 right-0 w-1/4 bg-gradient-to-l from-black"></div>
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-1/12 bg-gradient-to-r from-black md:w-1/4"></div>
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-1/12 bg-gradient-to-l from-black md:w-1/4"></div>
         </div>
       </div>
     </section>

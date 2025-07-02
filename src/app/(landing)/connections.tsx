@@ -9,14 +9,14 @@ import { SignInDialog } from "@/components/sign-in-dialog";
 const ConnectionsSection = () => {
   const [showSignIn, setShowSignIn] = useState(false);
   return (
-    <section className="relative min-h-screen bg-black px-4 py-32">
+    <section className="relative bg-black px-4 pb-32 md:pb-52">
       <div className="mx-auto max-w-4xl text-center">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: [0.68, -0.6, 0.32, 1.6] }}
           viewport={{ once: true }}
-          className="text-main-gradient mb-12 text-5xl leading-32 font-black md:text-8xl lg:text-9xl"
+          className="text-main-gradient mb-8 text-5xl font-black md:mb-12 md:text-8xl md:leading-32 lg:text-9xl"
         >
           Make <em>real</em>
           <br />
@@ -52,7 +52,7 @@ const ConnectionsSection = () => {
           >
             <Button
               size="lg"
-              className="transform bg-white p-10 text-2xl font-bold text-black transition-all duration-300 hover:scale-105 hover:bg-white hover:brightness-110"
+              className="transform bg-white p-8 text-lg font-bold text-black transition-all duration-300 hover:scale-105 hover:bg-white hover:brightness-110 md:p-10 md:text-2xl"
               onClick={() => setShowSignIn(true)}
             >
               Let's go!

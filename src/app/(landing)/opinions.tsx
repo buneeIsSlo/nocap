@@ -69,14 +69,14 @@ const opinions: Item[] = [
 
 export default function Opinions() {
   return (
-    <section className="relative min-h-screen bg-black px-4 py-32">
+    <section className="relative min-h-screen bg-black px-4 pb-32">
       <div className="z-10 mx-auto max-w-6xl text-center">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: [0.68, -0.6, 0.32, 1.6] }}
           viewport={{ once: true }}
-          className="text-main-gradient mx-auto max-w-4xl text-5xl leading-32 font-black text-balance md:text-8xl lg:text-9xl"
+          className="text-main-gradient mx-auto max-w-4xl text-5xl font-black text-balance md:text-8xl md:leading-32 lg:text-9xl"
         >
           Ask for
           <br />
@@ -94,7 +94,7 @@ export default function Opinions() {
             <span className="text-main-gradient">Opinions</span>
           </motion.span>
         </motion.h2>
-        <div className="flex w-full flex-row justify-between py-24">
+        <div className="mx-auto flex max-w-lg flex-col justify-between py-16 md:py-24 lg:max-w-none lg:flex-row">
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -104,7 +104,7 @@ export default function Opinions() {
               delay: 0.3,
             }}
             viewport={{ once: true }}
-            className="relative py-8"
+            className="relative self-center py-8"
           >
             <Squircle
               asChild
@@ -128,7 +128,7 @@ export default function Opinions() {
               asChild
               cornerRadius={40}
               cornerSmoothing={1}
-              className="absolute top-10 -right-35 bg-white px-4 py-2"
+              className="absolute top-0 right-0 bg-white px-4 py-2 md:top-10 md:-right-35"
             >
               <span className="font-nunito text-lg font-bold text-black">
                 Fresh cut. What do you think?

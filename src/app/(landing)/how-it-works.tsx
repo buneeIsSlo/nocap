@@ -32,7 +32,7 @@ const steps: Step[] = [
 
 export default function HowItWorks() {
   return (
-    <section className="relative min-h-screen bg-black px-4 pt-44 pb-32">
+    <section className="relative min-h-screen bg-black px-4 pt-32 pb-32 md:pt-44">
       <div className="z-10 mx-auto max-w-6xl text-center">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
@@ -44,7 +44,7 @@ export default function HowItWorks() {
           How It Works
         </motion.h2>
 
-        <div className="grid grid-cols-1 gap-8 py-24 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-8 py-16 md:grid-cols-3 md:py-24">
           {steps.map((step, idx) => (
             <motion.div
               key={idx}
