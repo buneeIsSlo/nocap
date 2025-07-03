@@ -102,19 +102,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { error, data } = await supabase
-      .from("messages")
-      .insert([
-        {
-          profile_id,
-          content,
-          sender_id: sender_id || null,
-          is_sender_authenticated: !!is_sender_authenticated,
-          is_sender_visible: !!is_sender_visible,
-        },
-      ])
-      .select()
-      .single();
+    const { error, data } = await supabase.from("messages").insert([
+      {
+        profile_id,
+        content,
+        sender_id: sender_id || null,
+        is_sender_authenticated: !!is_sender_authenticated,
+        is_sender_visible: !!is_sender_visible,
+      },
+    ]);
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
