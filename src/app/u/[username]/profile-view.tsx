@@ -193,7 +193,12 @@ export default function ProfileView({
         </Squircle>
       </motion.div>
       {/* Sticky footer CTA */}
-      <div className="max-w-2xlpx-4 z-10 mx-auto w-full py-4 backdrop-blur">
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+        className="max-w-2xlpx-4 z-10 mx-auto w-full py-4 backdrop-blur"
+      >
         <Button
           className="w-full rounded-full py-8 text-base"
           onClick={handleGetOwnMessages}
@@ -201,7 +206,7 @@ export default function ProfileView({
           Get your own messages 💬
         </Button>
         <SignInDialog open={signInOpen} onOpenChange={setSignInOpen} />
-      </div>
+      </motion.div>
     </section>
   );
 }

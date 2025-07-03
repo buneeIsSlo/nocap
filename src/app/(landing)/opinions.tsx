@@ -1,11 +1,11 @@
 "use client";
 
 import { MessageCard } from "@/components/message-card";
-import React from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { AnimatedList } from "@/components/animated-list";
 import { Squircle } from "@squircle-js/react";
 import Image from "next/image";
-import { motion } from "motion/react";
+import { motion, AnimatePresence, useInView } from "motion/react";
 
 interface Item {
   question: string;
@@ -68,8 +68,19 @@ const opinions: Item[] = [
 ];
 
 export default function Opinions() {
+  const [showList, setShowList] = useState(false);
+  const sectionRef = useRef(null);
+  const inView = useInView(sectionRef, { once: true, margin: "-100px" });
+
+  useEffect(() => {
+    if (inView) setShowList(true);
+  }, [inView]);
+
   return (
-    <section className="relative min-h-screen bg-black px-4 pb-32">
+    <section
+      ref={sectionRef}
+      className="relative min-h-screen bg-black px-4 pb-32"
+    >
       <div className="z-10 mx-auto max-w-6xl text-center">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
@@ -135,15 +146,24 @@ export default function Opinions() {
               </span>
             </Squircle>
           </motion.div>
-          <div className="relative flex h-[500px] flex-col overflow-hidden p-2">
-            <AnimatedList>
-              {opinions.map((item, idx) => (
-                <MessageCard key={idx} {...item} />
-              ))}
-            </AnimatedList>
-
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/12 rounded-lg bg-gradient-to-t from-black"></div>
-          </div>
+          <AnimatePresence>
+            {showList && (
+              <motion.div
+                initial={{ opacity: 0, y: -40 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -40 }}
+                transition={{ duration: 0.3, ease: [0.68, -0.6, 0.32, 1.6] }}
+                className="relative flex h-[500px] flex-col overflow-hidden p-2"
+              >
+                <AnimatedList>
+                  {opinions.map((item, idx) => (
+                    <MessageCard key={idx} {...item} />
+                  ))}
+                </AnimatedList>
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/12 rounded-lg bg-gradient-to-t from-black"></div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </section>
