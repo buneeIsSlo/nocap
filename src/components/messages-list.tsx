@@ -10,7 +10,7 @@ import { getRelativeTime } from "@/lib/utils";
 import { Loader2, MessageCircleMore } from "lucide-react";
 import { Squircle } from "@squircle-js/react";
 import { Button } from "./ui/button";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -43,6 +43,7 @@ export default function MessagesList({
 }: MessagesListProps) {
   const queryClient = useQueryClient();
   const topOfListRef = useRef<HTMLDivElement>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const {
     data,
     isLoading,
@@ -89,7 +90,7 @@ export default function MessagesList({
       return json.messages || [];
     },
     refetchInterval: 20000,
-    enabled: !!latestCreatedAt && isAcceptingMessages,
+    enabled: !isDeleting && !!latestCreatedAt && isAcceptingMessages,
   });
 
   const handlePrpendingNewMessages = () => {
@@ -117,6 +118,7 @@ export default function MessagesList({
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
+      setIsDeleting(true);
       const res = await fetch(`/api/messages?id=${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to delete");
     },
@@ -136,10 +138,16 @@ export default function MessagesList({
       return { prevData };
     },
     onError: (_err, _id, context) => {
+      setIsDeleting(false);
       if (context?.prevData) {
         queryClient.setQueryData(["messages"], context.prevData);
       }
       toast.error("Failed to delete message");
+    },
+    onSuccess: () => {
+      setIsDeleting(false);
+      queryClient.invalidateQueries({ queryKey: ["newMessages"] });
+      queryClient.invalidateQueries({ queryKey: ["messages"] });
     },
   });
 
