@@ -23,7 +23,7 @@ export async function generateMetadata({
   if (!profile) return {};
 
   return {
-    title: `@${profile.username}`,
+    title: `No Cap | @${profile.username}`,
     description:
       profile.bio || `Message @${profile.username} anonymously on No Cap.`,
   };

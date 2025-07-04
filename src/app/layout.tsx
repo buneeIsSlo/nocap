@@ -20,10 +20,7 @@ const nunito = Nunito({
 });
 
 export const metadata: Metadata = {
-  title: {
-    template: "No Cap | %s",
-    default: "No Cap",
-  },
+  title: "No Cap",
   description: "Send and receive messages anonymously",
 };
 
